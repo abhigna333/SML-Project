@@ -1,0 +1,74 @@
+### Model Arguments
+model_name_or_path: #provide config path here
+tokenizer_name_or_path: # provide tokenizer path e.g fla-hub/transformer-1.3B-100B
+custom_model: false
+trust_remote_code: true
+attn_implementation: flash_attention_2
+torch_dtype: bfloat16
+
+is_dtrnet: true # If DTRNet model or not
+is_mod: false
+is_dllm: false
+dtrnet_layers: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22] # layers to be changed to DTRNet [DTRNet]
+aux_loss_coeff: 0.0008 # Coefficient for auxiliary loss (lambda) [DTRNet, D-LLM]
+topk: 0.7 # Top-k value for MoD [MoD]
+dynamic_reserve_initials: 2 # Initial dynamic reserve for D-LLM [D-LLM]
+dynamic_active_target: 0.7 # Acceleration rate of tokens in D-LLM in D-LLM [D-LLM]
+
+save_modeling_code: None #src/transformers_extra/models/custom_llama
+auto_map:
+  "AutoModelForCausalLM": "modeling_custom_llama.CustomLlamaForCausalLM"
+  "AutoConfig": "configuration_custom_llama.CustomLlamaConfig"
+
+# Data Arguments - using a small dataset for testing
+dataset_name: HuggingFaceFW/fineweb-edu # Example dataset
+dataset_config: sample-100BT
+dataset_train_split: train
+dataset_test_split: test
+max_seq_length: 2048
+packing: true
+dataset_num_proc: 128
+dataloader_num_workers: 128
+processed_dataset_dir: None # Provide processed data path here else None
+
+### Training parameters
+num_train_epochs: 1
+per_device_train_batch_size: 6
+per_device_eval_batch_size: 8
+gradient_accumulation_steps: 22
+learning_rate: 3.0e-4
+lr_scheduler_type: cosine_with_min_lr
+lr_scheduler_kwargs:
+  min_lr: 3.0e-5
+warmup_ratio: 0.01
+weight_decay: 0.01
+torch_compile: false
+max_grad_norm: 1.0
+
+# Optimization
+optim: adamw_torch
+bf16: true
+fp16: false
+use_liger_kernel: false
+
+# Evaluation and saving
+eval_strategy: "no"
+eval_steps: 500
+save_strategy: steps
+save_steps: 5000
+save_total_limit: 3
+
+# Logging
+logging_strategy: steps
+logging_steps: 10
+report_to: [wandb]
+
+# Others
+remove_unused_columns: true
+seed: 42
+push_to_hub: false
+
+# Gradient checkpointing for memory efficiency
+gradient_checkpointing: false
+
+
